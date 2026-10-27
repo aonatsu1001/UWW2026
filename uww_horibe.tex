@@ -1,0 +1,163 @@
+%\documentstyle[a4j,epsbox,graphicx]{jarticle}
+\documentclass[a4j]{jarticle}%変更禁止！
+%%%%%%%%%%%%usepackageは適宜追加してください．%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage{epsbox}
+%\usepackage{graphicx}
+\usepackage[dvipdfmx]{graphicx,color}
+\usepackage{comment}
+\usepackage{enumitem}
+\usepackage{multirow}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%ここから変更禁止%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\topmargin -28mm
+\oddsidemargin -15mm
+\evensidemargin -15mm
+\textwidth 185mm
+\textheight 275mm
+\columnsep 6mm
+
+%\def\toujitu{Dec. 2020}
+
+\makeatletter
+\def\section{\@startsection{section}{2}{\z@}{.8ex plus .8ex minus 
+ .2ex}{.05ex plus .07ex}{\large\bf}}
+\makeatother
+\makeatletter
+\def\subsection{\@startsection{subsection}{2}{\z@}{.8ex plus .8ex minus 
+ .2ex}{.05ex plus .07ex}{\bf}}
+\makeatother
+
+
+\pagestyle{empty}
+
+\begin{document}
+
+\baselineskip 4.75mm
+
+\twocolumn
+[
+\footnotesize 
+\begin{center}
+{~}\\
+%\begin{center}
+%{ユビキタスウェアラブルワークショップ2021　
+%\hfill \toujitu}\\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%ここまで変更禁止%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%注意！！\vspaceは図表部分のみ見にくく（醜く）ならない範囲内で使用可能とします．%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\medskip
+{\large
+%タイトル
+{\bf 視点移動情報に基づく視野外への視覚的関心方向の推定}\\
+}
+\medskip
+{\large
+%著者　同じ所属の人が連続する場合は連続する同じ所属の著者の最後の著者のみに所属を付けること．
+         堀部青夏,  寺田 努, 塚本昌彦(神戸大)
+}
+\end{center}
+]
+
+\section{研究の背景と目的}
+近年のHMD(head mounted display)の注目度向上と普及により，HMDの機能である仮想空間上でのディスプレイ表示を活用して，HMDを装着した状態で作業を行う機会が増加する可能性がある．
+しかし，HMD装着状態での作業には，大きく二つの課題がある．
+一つ目は，HMD装着時の視野の狭さによる作業効率の低下である．
+HMD装着時の視野を拡張する手法として，
+視点の動きに合わせてVR空間上の表示画面をスクロールする手法\cite{bib1}や，
+背後のオブジェクトに移動などの動的な変化があればHMDの表示画面に後方映像を合成して表示する手法\cite{bib2}などが提案されている．
+これらの手法は，HMDの装着によって狭窄した視野を回復させるだけでなく，肉眼における視野外領域も見えるようになるなど，
+HMD装着前よりも視野を拡張できる．
+しかし，画面酔いや通常時の視野を妨げる可能性があるなどの課題が残されている．
+二つ目は，HMDを装着した状態で頭部運動を行った際の，HMDの重量による首への負担や疲労感の増加である．
+HMD装着時の作業では，頭部運動を最小限に抑えながら，視野を拡張できる手法が求められる．
+
+そこで本研究では，視点の動きに合わせて，ユーザが注意を向けたい方向の視野外映像を任意のタイミングで表示することで，
+首への負担や疲労感を軽減しつつ，HMD装着時の作業効率を向上させるシステムを提案する．
+本稿では，ユーザが注意を向けたいと考える視野外方向を視覚的関心方向と定義し，
+視点移動情報に基づいて視覚的関心方向を推定する手法を提案する．
+
+\section{提案手法}
+視点移動情報に基づいて視覚的関心方向を推定する手法を提案する．
+推定する視覚的関心方向の対象方向を図\ref{fig1}に示す．
+本研究では，試験的に左側の視野外を左上，右上，左下，右下に4分割した領域を，推定する視覚的関心方向の対象とした．
+まずは，データセットを作成するために，頭部を固定した状態で，正面の基準点から視覚的関心方向に50回ずつ視点移動を繰り返すよう指示し，
+初速や視点方向ベクトルなどの視点移動情報を記録した．
+なお，サンプリングレートは60 Hzであった．
+データセットは，基準点からそれぞれの方向への視点移動情報のみを用いて作成した．
+次に，得られたデータに対してスライディングウィンドウ処理を施しながら，特徴量を抽出した．
+1回の視点移動におけるデータ長は約50サンプル (0.83s)であり，5サンプルのウィンドウを1サンプルずつスライドした．
+特徴量としては，ウィンドウ内の視点方向ベクトルや瞳孔径の平均値を用いた．
+最後に，抽出した特徴量を用いて，視覚的関心方向を分類する機械学習モデルを構築した．
+分類アルゴリズムには，ランダムフォレストを採用した．
+
+\section{実験} 
+構築した分類モデルによる視覚的関心方向の推定精度を評価した．
+モデルの精度評価には5分割交差検証を用い，各分割における評価結果の平均値を最終的な性能指標とした．
+評価指標には正解率や適合率，再現率，F値を用いた．
+平均正解率は0.933，適合率は0.931，再現率は0.931，F値は0.931であった．
+また，5分割交差検証の混同行列を図\ref{fig2}に示す．
+混同行列から，右下方向への視点移動が左下方向へ，左下方向への視点移動が右下方向へ
+誤分類される傾向があることが分かった．
+これは，人間は上方向よりも下方向への視点移動の際にノイズが多く発生する可能性を示唆している．
+今後は，下方向への視点移動の際に生じるノイズに対応するための，特徴量の再検討が必要である．
+
+\section{まとめと今後の展望}
+本稿では，視点移動情報に基づいて視覚的関心方向の推定手法を提案し，
+推定精度を検証するための実験を行った．
+今後は，提案手法を取り入れた視野拡張システムを構築し，その有効性を評価する予定である．
+
+
+
+ \begin{thebibliography}{10}
+\bibitem{bib1}
+村上幸乃, 橋本 直: Neckless: アイトラッキングに基づく疑似的な眼球の可動範囲拡張, 情報処
+理学会研究報告 (エンターテインメントコンピューティングシンポジウム研究会), Vol. 2022, pp. 84--85 (Aug. 2022).
+\bibitem{bib2}
+K. Fan, J. Huber, S. Nanayakkara, and M. Inami: SpiderVision: Extending the Human Field of View for Augmented Awareness, \textit{Proc. of the 5th Augmented Human International Conference (AH 2014)}, pp. 1--8 (Mar. 2014).
+
+
+\end{thebibliography}
+
+
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+% \begin{table}[t]
+% \centering
+% \caption{5分割交差検証の結果}
+% \vspace{2mm}
+% \label{tab:accuracy_per_direction}
+% \resizebox{\columnwidth}{!}{%
+%     \begin{tabular}{ccccc}
+%     \hline
+%     方向 & 正解率 & 適合率 & 再現率 & F値 \\ \hline
+%     左上 & 0.990 & 0.979 & 0.988 & 0.983 \\
+%     右上 & 1.000 & 1.000 & 1.000 & 1.000 \\
+%     右下 & 0.937 & 0.852 & 0.866 & 0.859 \\
+%     左下 & 0.939 & 0.892 & 0.870 & 0.881 \\ \hline
+%     平均 & 0.933 $\pm$ 0.005 & 0.931 $\pm$ 0.005 & 0.931 $\pm$ 0.005 & 0.931 $\pm$ 0.005 \\ \hline
+%     \end{tabular}%
+% }
+% \end{table}
+
+\begin{figure}[!t]
+\vspace{-4mm}
+  \begin{center}
+    \includegraphics[width=1\linewidth]{outview.pdf}
+  \end{center}
+    \vspace{-1.6cm}
+  \caption{推定する視覚的関心方向の対象方向}%{}内にタイトルを記入してください
+  \label{fig1}
+\end{figure}
+
+\begin{figure}[!t]
+\vspace{6mm}
+  \begin{center}
+    \includegraphics[width=0.8\linewidth]{confusion_matrix_5fold_result.pdf}
+  \end{center}
+    \vspace{-0.8cm}
+  \caption{5分割交差検証の混同行列}%{}内にタイトルを記入してください
+  \vspace{4mm}
+  \label{fig2}
+\end{figure}
+
+\end{document}
